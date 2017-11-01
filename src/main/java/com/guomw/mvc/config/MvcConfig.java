@@ -8,6 +8,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.thymeleaf.spring4.SpringTemplateEngine;
@@ -22,18 +23,48 @@ import java.util.*;
 @ComponentScan("com.guomw.mvc")
 public class MvcConfig extends WebMvcConfigurerAdapter {
 
+    /**
+     * 静态资源处理
+     */
+    private static String[] STATIC_RESOURCE_PATH = {
+            "resources"
+    };
+
+
     @Autowired
     private Environment environment;
 
     @Autowired
     private WebApplicationContext webApplicationContext;
 
+
+    /**
+     * 静态资源设置
+     * @param registry
+     */
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        super.addResourceHandlers(registry);
+        for (String resourcePath:STATIC_RESOURCE_PATH) {
+            registry.addResourceHandler("/"+resourcePath+"/**").addResourceLocations("/"+resourcePath+"/");
+
+        }
+    }
+
+    /**
+     * 设置html视图解析器
+     * @param registry
+     */
     @Override
     public void configureViewResolvers(ViewResolverRegistry registry) {
         //super.configureViewResolvers(registry);
         registry.viewResolver(thymeleafViewResolver());
     }
 
+    /**
+     * 设置异常处理
+     * @param exceptionResolvers
+     */
     @Override
     public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> exceptionResolvers) {
         super.configureHandlerExceptionResolvers(exceptionResolvers);
@@ -68,4 +99,7 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         return resolver;
 
     }
+
+
+
 }
