@@ -1,10 +1,13 @@
 package com.guomw.mvc.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.web.context.WebApplicationContext;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -15,9 +18,12 @@ import org.thymeleaf.spring4.SpringTemplateEngine;
 import org.thymeleaf.spring4.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring4.view.ThymeleafViewResolver;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
-
+/**
+ * @author guomw
+ */
 @Configuration
 @EnableWebMvc
 @ComponentScan("com.guomw.mvc")
@@ -30,12 +36,13 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
             "resources"
     };
 
+    private static String develop="development";
 
     @Autowired
     private Environment environment;
 
     @Autowired
-    private WebApplicationContext webApplicationContext;
+    private ApplicationContext applicationContext;
 
 
     /**
@@ -109,12 +116,28 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
         templateResolver.setPrefix("/views/");
         templateResolver.setSuffix(".html");
-        templateResolver.setApplicationContext(webApplicationContext);
+        templateResolver.setApplicationContext(applicationContext);
         templateResolver.setCharacterEncoding("utf-8");
 
-        if (environment.acceptsProfiles("development")) {
+        if (environment.acceptsProfiles(develop)) {
             templateResolver.setCacheable(false);
         }
         return templateResolver;
+    }
+
+
+    /**
+     * 设置接口Json返回格式
+     * 必须在Maven 中引用jackson-dataformat-xml，否则编译会报异常
+     *
+     * @param converters
+     */
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+
+        MappingJackson2HttpMessageConverter converter=new MappingJackson2HttpMessageConverter();
+        converter.setSupportedMediaTypes(Arrays.asList(MediaType.APPLICATION_JSON));
+
+        converters.add(converter);
     }
 }
