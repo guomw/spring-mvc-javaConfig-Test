@@ -117,8 +117,4 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         }
         return templateResolver;
     }
-
-
-
-
 }
